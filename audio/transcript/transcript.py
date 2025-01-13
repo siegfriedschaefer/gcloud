@@ -24,7 +24,8 @@ def generate_transcript(model: GenerativeModel,  bucket_name: str, audio_blob: s
 def main():
 
     audio_blob = None
-    transcript_file = "transcript.txt"
+    transcript_file = None
+    output_flag = False
 
     load_dotenv()
 
@@ -35,15 +36,21 @@ def main():
 
     model = GenerativeModel("gemini-1.5-flash-002")
 
-    prompt = """
+    prompt_en = """
     Can you transcribe this interview, in the format of timecode, speaker, caption.
     Use speaker A, speaker B, etc. to identify speakers.
+    """
+
+    prompt_de = """
+    Transkribiere dieses Interview im Format von Timecode, Sprecher und Untertitel.
+    Verwende Sprecher A, Sprecher B usw., um die Sprecher zu identifizieren.
     """
 
     parser = argparse.ArgumentParser(description="Transcribe an audio file using a generative model")
 
     parser.add_argument("--blob", help="Audio Blob name")
     parser.add_argument("--tf", help="Local text file to transcribe")
+    parser.add_argument("--of", help="Output to stdio")
 
     args = parser.parse_args()
     
@@ -53,11 +60,20 @@ def main():
     if args.tf:
         transcript_file = args.tf
 
-#    audio_blob = "gl-001500-002000.mp3"
+    if args.of:
+        output_flag = (args.of == "true")
+
+
     if (audio_blob):
         print(f"Transcribing {audio_blob}...")
-        transcript = generate_transcript(model, bucket_name, audio_blob, prompt)
-        print(transcript)
+        transcript = generate_transcript(model, bucket_name, audio_blob, prompt_de)
+
+        if output_flag:
+           print(transcript)
+
+        if not transcript_file:
+            transcript_file = audio_blob.split(".")[0] +".txt"
+            print(f"Writing to {transcript_file}")
 
         try:
             with open(transcript_file, "w", encoding="utf-8") as file:
