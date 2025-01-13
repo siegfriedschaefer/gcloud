@@ -16,7 +16,7 @@ def get_mp3_info(audio_file):
     total_duration = len(audio)
     print(f"duration: {total_duration}")
 
-def split_audio(audio_file, segment_duration):
+def split_audio(audio_file, segment_duration, segment_path):
     """Splits an audio file into segments of specified duration.
 
     Args:
@@ -36,7 +36,7 @@ def split_audio(audio_file, segment_duration):
             start = i * segment_duration
             end = min((i + 1) * segment_duration, total_duration)
             segment = audio[start:end]
-            segment.export(f"{file_name}_{start}_{end}_{i+1}.mp3", format="mp3")
+            segment.export(f"{segment_path}/{file_name}_{start}_{end}_{i+1}.mp3", format="mp3")
 
         print("Audio file splitted successfully")
 
@@ -48,6 +48,7 @@ def main():
     
     audio_file = None
     segment_length = 30000
+    segment_path = "./data"
 
     print("mp3split v0.1.0")
 
@@ -63,7 +64,7 @@ def main():
         segment_length = (int(args.sl) * 60 * 1000)
 
     if audio_file and segment_length:
-        split_audio(audio_file, segment_length)
+        split_audio(audio_file, segment_length, segment_path)
 
 
 if __name__ == "__main__":
