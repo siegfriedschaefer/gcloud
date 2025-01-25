@@ -34,7 +34,8 @@ def main():
 
     vertexai.init(project=project_id, location="us-central1")
 
-    model = GenerativeModel("gemini-1.5-flash-002")
+#    model = GenerativeModel("gemini-1.5-flash-002")
+    model = GenerativeModel("gemini-2.0-flash-exp")
 
     prompt_en = """
     Can you transcribe this interview, in the format of timecode, speaker, caption.
@@ -51,6 +52,7 @@ def main():
     parser.add_argument("--blob", help="Audio Blob name")
     parser.add_argument("--tf", help="Local text file to transcribe")
     parser.add_argument("--of", help="Output to stdio")
+    parser.add_argument("--lang", help="Language", default="en")
 
     args = parser.parse_args()
     
@@ -63,10 +65,14 @@ def main():
     if args.of:
         output_flag = (args.of == "true")
 
+    if args.lang == "de":
+        prompt = prompt_de
+    else:
+        prompt = prompt_en
 
     if (audio_blob):
         print(f"Transcribing {audio_blob}...")
-        transcript = generate_transcript(model, bucket_name, audio_blob, prompt_de)
+        transcript = generate_transcript(model, bucket_name, audio_blob, prompt)
 
         if output_flag:
            print(transcript)
